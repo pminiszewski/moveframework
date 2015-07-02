@@ -1,0 +1,10 @@
+MoveControllerTest/obj/
+MoveProxyServer/obj/
+MoveController/obj/
+MoveControllerTest/bin/
+.CWrapper/Release/
+.CWrapper/Debug/
+.MoveFramework/Debug/
+.MoveFramework/Release/
+*.opensdf
+*.sdf
