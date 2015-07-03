@@ -28,14 +28,19 @@ namespace MoveController
         {
             StateObject state = new StateObject();
             state.Socket = _Sock;
-            _Sock.BeginReceive(state.buffer, 0, StateObject.BufferSize, state, OnDataReceived, state);
+            _Sock.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, OnDataReceived, state);
 
         }
-
+        StringBuilder d;
         private void OnDataReceived(IAsyncResult result)
         {
 
+            
+        
         }
+        
+           
+    
     }
 
 
