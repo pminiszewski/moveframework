@@ -1,8 +1,14 @@
-﻿using System;
+﻿#if !UNITY_EDITOR && !UNITY_STANDALONE
+#define NOT_UNITY
+#endif
+
+using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 
-#if !UNITY_EDITOR && !UNITY_STANDALONE
+
+
+#if NOT_UNITY
 public struct Vector3
 {
     public float x;
@@ -31,9 +37,10 @@ public struct Quaternion
 
 public class Debug
 {
+    public static string From = "";
     public static void Log(object log)
     {
-        Console.WriteLine(log.ToString());
+        Console.WriteLine(From + ": "+ log.ToString());
     }
    
     
@@ -44,10 +51,19 @@ public class Debug
 public static class PSMove 
 {
 
-    public static Vector3 RawPosition { get; private set; }
-    public static Quaternion RawOrientation { get; private set; }
+    public static Vector3 RawPosition { get; internal set; }
+    public static Quaternion RawOrientation { get; internal set; }
+    public static long SendTime { get; internal set; }
 
     static PSMove()
+    {
+
+        
+
+
+    }
+   #if NOT_UNITY
+    public static void InitDevice()
     {
         MoveFramework_CS.MoveWrapper.init();
         MoveFramework_CS.MoveWrapper.subscribeMoveUpdate(
@@ -57,9 +73,8 @@ public static class PSMove
             OnNavUpdate,
             OnNavKeyDown,
             OnNavKeyUp);
-
     }
-
+#endif
     private static void OnMoveUpdate(int id, [MarshalAs(UnmanagedType.Struct)] MoveFramework_CS.MoveWrapper.Vector3 position, [MarshalAs(UnmanagedType.Struct)] MoveFramework_CS.MoveWrapper.Quaternion orientation, int trigger)
     {
         RawPosition = PS2UVec(position);
@@ -95,5 +110,6 @@ public static class PSMove
         output.y = input.y;
         output.z = input.z;
     }
+
     
 }

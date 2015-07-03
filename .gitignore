@@ -8,3 +8,6 @@ MoveControllerTest/bin/
 .MoveFramework/Release/
 *.opensdf
 *.sdf
+.CalibrationTool/obj/
+.MovePingPong/obj/
+MoveProxyServer/bin/Debug/

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MoveController;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,16 +9,21 @@ using System.Windows.Forms;
 
 namespace MoveControllerTest
 {
-    public partial class Form1 : Form
+    public partial class ClientWindow : Form
     {
-        public Form1()
+        ProxyClient _Client;
+        public ClientWindow()
         {
+            
             InitializeComponent();
+            Debug.From = "Client";
+            _Client = new ProxyClient(); 
+            _Client.Init();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            textBox1.Text = PSMove.RawPosition.ToString();
+            PacketTimeLabel.Text = PSMove.SendTime.ToString();
         }
     }
 }
