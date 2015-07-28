@@ -23,7 +23,8 @@ namespace MoveControllerTest
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            PacketTimeLabel.Text = PSMove.SendTime.ToString();
+            PositionLabel.Text = PSMove.RawPosition.ToString();
+            OrientationLabel.Text = PSMove.RawOrientation.ToString();
         }
     }
 }

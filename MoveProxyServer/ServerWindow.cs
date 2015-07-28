@@ -34,6 +34,8 @@ namespace MoveProxyServer
         private void timer1_Tick(object sender, EventArgs e)
         {
             ConnectionStatusLabel.Text = _Server.IsConnected ? "Connected" : "Not Connected";
+            PositionLabel.Text = PSMove.RawPosition.ToString();
+            OrientationLabel.Text = PSMove.RawOrientation.ToString();
         }
     }
 }

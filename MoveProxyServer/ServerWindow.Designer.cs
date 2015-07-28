@@ -33,6 +33,10 @@
             this.label1 = new System.Windows.Forms.Label();
             this.ConnectionStatusLabel = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.PositionLabel = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.OrientationLabel = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // backgroundWorker1
@@ -62,14 +66,54 @@
             this.timer1.Enabled = true;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // Form1
+            // PositionLabel
+            // 
+            this.PositionLabel.AutoSize = true;
+            this.PositionLabel.Location = new System.Drawing.Point(112, 31);
+            this.PositionLabel.Name = "PositionLabel";
+            this.PositionLabel.Size = new System.Drawing.Size(43, 13);
+            this.PositionLabel.TabIndex = 3;
+            this.PositionLabel.Text = "<none>";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 31);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(44, 13);
+            this.label3.TabIndex = 2;
+            this.label3.Text = "Position";
+            // 
+            // OrientationLabel
+            // 
+            this.OrientationLabel.AutoSize = true;
+            this.OrientationLabel.Location = new System.Drawing.Point(112, 54);
+            this.OrientationLabel.Name = "OrientationLabel";
+            this.OrientationLabel.Size = new System.Drawing.Size(43, 13);
+            this.OrientationLabel.TabIndex = 5;
+            this.OrientationLabel.Text = "<none>";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(12, 54);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(58, 13);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Orientation";
+            // 
+            // ServerWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(557, 177);
+            this.Controls.Add(this.OrientationLabel);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.PositionLabel);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.ConnectionStatusLabel);
             this.Controls.Add(this.label1);
-            this.Name = "Form1";
+            this.Name = "ServerWindow";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
@@ -83,6 +127,10 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label ConnectionStatusLabel;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Label PositionLabel;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label OrientationLabel;
+        private System.Windows.Forms.Label label5;
     }
 }
 

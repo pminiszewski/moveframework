@@ -18,9 +18,9 @@ namespace MoveController
     abstract public class ProxyBase
     {
         public const int LISTEN_PORT = 11000;
-
+        public bool IsDebug = false;
         protected Socket _Sock { get; private set; }
-        private System.Threading.Semaphore _AckLock = new System.Threading.Semaphore(0, 1);
+        
         public bool IsConnected
         {
             get
@@ -44,15 +44,10 @@ namespace MoveController
         }
         protected abstract void InitProtected();
 
-        private void SendAck()
-        {
-            byte[] ack = { 97, 99, 107 }; // a,c,k
-            _Sock.Send(ack);
-        }
+        
 
         public void SendData(byte[] data)
         {
-            _AckLock.WaitOne();
             _Sock.Send(data);
             
         }
@@ -66,27 +61,44 @@ namespace MoveController
 
         private void OnPacketReceived(IAsyncResult result)
         {
-            Debug.Log("Data received.");
+            Log("Packet received.");
             StateObject state = result.AsyncState as StateObject;
             Socket soc = state.Socket;
 
             int bytesRead = soc.EndReceive(result);
-            if (bytesRead > 0)
+            
+            if(bytesRead >= 0)
             {
-                state.ReceivedBytes.AddRange(state.buffer);
-                soc.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, OnPacketReceived, state);
-            }
-            else
-            {
-                OnDataReceived(state.ReceivedBytes);
-                SendAck();
+                // TODO: Code below does not always manage to add byte before calling OnDataReceived. Thread sync needed, but how?
+                //state.ReceivedBytes.AddRange( new List<byte>( state.buffer).GetRange(0, bytesRead));
+                for (int i = 0; i < bytesRead;i++ )
+                {
+                    state.ReceivedBytes.Add(state.buffer[i]);
+                }
+                    soc.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, OnPacketReceived, state);
+                if (bytesRead == StateObject.BufferSize)
+                {    
+                    
+                    return;
+                }
+                byte[] finalBytes = state.ReceivedBytes.ToArray();
+                OnDataReceived(state.buffer); //HACK: If needed synchronize thread to allow sending more than 256 bytes of data.
+                //OnDataReceived(finalBytes); 
+                state.ReceivedBytes.Clear();
             }
         }
-        public virtual void OnDataReceived(List<byte> data) { }
+        public virtual void OnDataReceived(byte[] data) { }
 
         protected void Accept()
         {
             _Sock = _Sock.Accept();
+        }
+        protected void Log(object logObject)
+        {
+            if(IsDebug)
+            {
+                Debug.Log(logObject);
+            }
         }
     }
 
@@ -95,23 +107,30 @@ namespace MoveController
 
         protected override void InitProtected()
         {
-            Debug.Log("Init client");
+            Log("Init client");
             _Sock.Connect(new IPEndPoint(IPAddress.Loopback, LISTEN_PORT));
+            SendAck();
         }
 
-        public override void OnDataReceived(List<byte> data)
+        private void SendAck()
         {
-            Debug.Log("Received "+data.Count+" bytes");
-            long time = BitConverter.ToInt64(data.ToArray(), 0);
-            PSMove.SendTime = time;
+            byte[] ack = { 97, 99, 107 }; // a,c,k
+            _Sock.Send(ack);
+            Log("Send ACK");
+        }
+
+        public override void OnDataReceived(byte[] data)
+        {
+            Log("Received "+data.Length+" bytes");
+            SendAck();
+            PSMoveSerializer.Deserialize(data);
         }
     }
 
 
     public class ProxyServer : ProxyBase
     {
-        private Timer _Timer;
-
+        //private System.Threading.Semaphore _AckLock = new System.Threading.Semaphore(0, 1);
         
         public float SendDataTimeout = 0.02f;
 
@@ -120,37 +139,41 @@ namespace MoveController
 #if UNITY_EDITOR || UNITY_STANDALONE
             throw new Exception("Proxy server cannot run from Unity.");
 #endif
-            Debug.Log("Init server");
+            Log("Init server");
             _Sock.Bind(new IPEndPoint(IPAddress.Loopback, LISTEN_PORT));
             _Sock.Listen(1);
-
-            Debug.Log("Started listen server");
+            PSMove.InitDevice();
+            Log("Started listen server");
             Accept();
-            Debug.Log("Connected.");
-            _Timer = new Timer();
-            _Timer.Elapsed += SendData;
-            _Timer.Start();
-            Debug.Log("Client disconnected. ");
+            Log("Connected.");
+            
         }
 
-        private void SendData(object sender, ElapsedEventArgs e) 
+        private void SendData()
         {
-            Debug.Log("Send data.");
-            byte[] data = BitConverter.GetBytes(DateTime.Now.Ticks);
+            Log("Send data.");
+            byte[] data = PSMoveSerializer.Serialize();
+            if(data.Length > StateObject.BufferSize)
+            {
+                throw new Exception("Data chunk is bigger than " + StateObject.BufferSize + "bytes. Check OnPackedReceived for details.");
+            }
             SendData(data);
         }
 
-        public override void OnDataReceived(List<byte> data)
+        public override void OnDataReceived(byte[] data)
         {
-            string ack = BitConverter.ToString(data.ToArray());
+
+            string ack = Encoding.Default.GetString(data, 0, 3);
+            
             if(ack == "ack")
             {
-                
+                Log("Received ack.");
+                SendData();
             }
         }
         private void OnDisconnected(IAsyncResult result)
         {
-            Debug.Log("Client disconnected");
+            Log("Client disconnected");
         }
 
     }
